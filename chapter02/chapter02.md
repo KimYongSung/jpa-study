@@ -19,12 +19,17 @@
      * @Column 생략된 필드의 경우 필드명으로 매핑.
 
 ## 2. persistence.xml 설정
- * JPA는 persistence.xml 파일을 통하여 설정가능.
- * 클래스패스 META-INF/persistence.xml에 존재할 경우 별다른 설정 없이 인식 가능.
-  - <persistence-unit name="jpa명">
+  * JPA는 persistence.xml 파일을 통하여 설정가능.
+  * 클래스패스 META-INF/persistence.xml에 존재할 경우 별다른 설정 없이 인식 가능.
     + 영속성 유닛(persistence unit) 설정부터 시작.
     + xml 상에 name attribute에는 고유의 이름을 부여해야함.
-
+   
+    <pre>
+    <code>
+      <persistence-unit name="jpa명">
+    </code>
+    </pre>
+   
   > JPA 표준 속성
   * javax.persistence.jdbc.driver : JDBC 드라이버
   * javax.persistence.jdbc.user : 데이터베이스 접속 아이디
