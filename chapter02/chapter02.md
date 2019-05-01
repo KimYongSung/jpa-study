@@ -128,8 +128,8 @@
   * 모든 데이터를 불러와서 검색하는것은 사실상 불가능하며, 검색조건이 포함될 경우 JPQL을 사용해야함.
 <pre>
     <code>
-        TypedQuery<Member> memberFindQuery = em.createQuery("select m from Member m", Member.class);
-        List<Member> members = memberFindQuery.getResultList()
+        TypedQuery&lt;Member&gt; memberFindQuery = em.createQuery("select m from Member m", Member.class);
+        List&lt;Member&gt; members = memberFindQuery.getResultList()
     </code>
 </pre>
  
