@@ -49,7 +49,7 @@
   * Dialect 라는 추상 클래스를 통하여 벤더별로 구현된 방언이 존재함.
   * 데이터베이스를 손쉽게 교체할 수 있는 핵심.
   * 하이버네이트 4.3 final 기준 지원하는 방언 
-    <http://docs.jboss.org/hibernate/orm/4.3/manual/en-US/html_single/#configuration-optional-dialects>
+    - <http://docs.jboss.org/hibernate/orm/4.3/manual/en-US/html_single/#configuration-optional-dialects>
 
   > 대표적인 데이터베이스 별로 상이한 기능
   
@@ -68,7 +68,7 @@
     - 어플리케이션 전체에서 한번만 생성되도록 싱글톤으로 관리해야함.
     - 어플리케이션 종료시 반드시 close() 호출.
     - persistence.xml 설정 정보를 사용하여 엔티티 매니저 팩토리 생성.
-    - <persistence-unit name="jpa명"> 기준으로 아래와 같이 생성
+    - &lt;persistence-unit name="jpa명"&gt; 기준으로 아래와 같이 생성
     <pre>
         <code>
             EntityManagerFactory emf = Persistence.createEntityManagerFactory("jpa명");
