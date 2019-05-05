@@ -29,11 +29,11 @@
   * 클래스패스 META-INF/persistence.xml에 존재할 경우 별다른 설정 없이 인식 가능.
     + 영속성 유닛(persistence unit) 설정부터 시작.
     + xml 상에 name attribute에는 고유의 이름을 부여해야함.
-   
+     
     <pre>
         &lt;persistence-unit name="jpa명"&gt;
     </pre>
-   
+
   > JPA 표준 속성
   * javax.persistence.jdbc.driver : JDBC 드라이버
   * javax.persistence.jdbc.user : 데이터베이스 접속 아이디
@@ -41,7 +41,8 @@
   * javax.persistence.jdbc.url : 데이터베이스 접속 URL
 
   > 하이버네이트 속성
-  * hibernate.dialect : 데이터베이스 방언 ( Dialect ) 설정
+  >
+  >   * hibernate.dialect : 데이터베이스 방언 ( Dialect ) 설정
 
 ## 3. 데이터베이스 방언
 
@@ -52,7 +53,7 @@
     - <http://docs.jboss.org/hibernate/orm/4.3/manual/en-US/html_single/#configuration-optional-dialects>
 
   > 대표적인 데이터베이스 별로 상이한 기능
-  
+
     1. 데이터 타입
       - 가변 문자 타입으로 MySql은 VARCHAR, 오라클은 VARCHAR2를 사용한다.
     2. 다른 함수명
@@ -88,17 +89,13 @@
 
 ## 5. EntityManger를 이용한 DML 사용방법
 1. INSERT ( 저장 )
-<pre>
-    <code>
-        String id = "id1";
-        Member member = new Member();
-        member.setId(id);
-        member.setUsername("용성");
-        member.setAge(2);
-
-        em.persist(member);
-    </code>
-</pre>
+<pre><code>	String id = "id1";
+    Member member = new Member();
+    member.setId(id);
+    member.setUsername("용성");
+    member.setAge(2);
+    em.persist(member);
+</code></pre>
 
 2. UPDATE ( 수정 )
 <pre>
@@ -133,5 +130,5 @@
     </code>
 </pre>
  
- 
+
    

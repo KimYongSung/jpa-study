@@ -15,7 +15,9 @@
 
 ## 3. JPA의 필요성
  - 생산성 증가
+    
     + DML 처리를 위한 SQL 작성대신 JPA가 제공하는 기능으로 SQL 작성이 생략됨.
+    
  - 유지보수 비용 감소
     + SQL을 직접 핸들링할 경우 테이블 스키마가 변경시 SQL 문을 매핑하기 위한 JDBC API 코드를 모두 변경해야함.
     + JPA를 통하여 사용할 경우 JDBC API 코드가 존재하지 않음.
@@ -44,7 +46,7 @@
           member01 == member02; // java heap의 메모리 주소가 다름.
         </code>
        </pre>
- 
+
        > JPA 사용시
         <pre>
         <code>
@@ -54,7 +56,7 @@
           member01 == member02; // 같다
         </code>
        </pre>
-       
+    
  - 성능상 이점
    + 어플리케이션과 데이터베이스 사이에서 다양한 성능 최적화 기회를 제공
    + 아래s는 회원을 두 번 조회하는 코드의 일부로 JDBC API 사용시 DB에 직접 각각 통신하여 조회하지만, JPA의 경우 두번째 조회한 회원 객체를 재사용함.
@@ -63,11 +65,12 @@
           Member member01 = jpa.find(Member.class, memberId);
           Member member02 = jpa.find(Member.class, memberId);
      </code></pre>
- 
+
  - 데이터 접근 추상화와 벤더 독립성
+   
    + 관계형 데이터베이스의 경우 같은 기능도 벤더마다 사용법이 다름. ex) MySql, Oracle, H2, Tibero...
-   + JPA 사용시 벤더별 추상화된 데이터 접근 계층을 통하여 특정 데이터베이스에 종속적이지 않
+   + JPA 사용시 벤더별 추상화된 데이터 접근 계층을 통하여 특정 데이터베이스에 종속적이지 않다.
    
+
  
- 
-   
+
