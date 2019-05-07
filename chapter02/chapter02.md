@@ -1,5 +1,7 @@
 # Chapte02 
 
+[TOC]
+
 ## 1. JPA 객체 매핑 방법
 
   1. @Entity
@@ -29,7 +31,7 @@
   * 클래스패스 META-INF/persistence.xml에 존재할 경우 별다른 설정 없이 인식 가능.
     + 영속성 유닛(persistence unit) 설정부터 시작.
     + xml 상에 name attribute에는 고유의 이름을 부여해야함.
-     
+    
     <pre>
         &lt;persistence-unit name="jpa명"&gt;
     </pre>
@@ -70,65 +72,64 @@
     - 어플리케이션 종료시 반드시 close() 호출.
     - persistence.xml 설정 정보를 사용하여 엔티티 매니저 팩토리 생성.
     - &lt;persistence-unit name="jpa명"&gt; 기준으로 아래와 같이 생성
-    <pre>
-        <code>
-            EntityManagerFactory emf = Persistence.createEntityManagerFactory("jpa명");
-        </code>
-    </pre>
+    ```java
+    EntityManagerFactory emf = Persistence.createEntityManagerFactory("jpa명");
+    ```
+    
+    
 
   * EntityManager
     - DML 처리 지원.
     - DB Connection과 밀접한 관계를 가지고 있어서 쓰레드간 자원 공유 or 재사용시 위험함.
     - 엔티티 매니저 사용 종료시 반드시 close() 호출.
     - 엔티티 매니저는 엔티티 매니저 팩토리에 의해서 생성.
-    <pre>
-        <code>
-            EntityManager em = emf.createEntityManager();
-        </code>
-    </pre>
+    ```java
+    EntityManager em = emf.createEntityManager();
+    ```
 
 ## 5. EntityManger를 이용한 DML 사용방법
 1. INSERT ( 저장 )
-<pre><code>	String id = "id1";
-    Member member = new Member();
-    member.setId(id);
-    member.setUsername("용성");
-    member.setAge(2);
-    em.persist(member);
-</code></pre>
+```java
+String id = "id1";    
+Member member = new Member();
+member.setId(id);
+member.setUsername("용성");
+member.setAge(2);
+em.persist(member);
+```
+
 
 2. UPDATE ( 수정 )
-<pre>
-    <code>
-        member.setAge(20);
-    </code>
-</pre>
+```java
+member.setAge(20);
+```
+
 
 3. DELETE ( 삭제 )
-<pre>
-    <code>
-        em.remove(member);
-    </code>
-</pre>
+```java
+em.remove(member);
+```
+
 
 4. SELECT ( 조회 )
-<pre>
-    <code>
-        String id = "id1";
-        Member findMember = em.find(Member.class, id);
-    </code>
-</pre>
+```java
+String id = "id1";
+Member findMember = em.find(Member.class, id);
+```
+
 
 5. JPQL
   * SQL을 추상화한 JPQL이라는 객체지향 쿼리 언어.
   * JPA는 엔티티 중심으로 개발하므로 테이블이 아닌 엔티티 객체를 대상으로 검색해야함.
   * 모든 데이터를 불러와서 검색하는것은 사실상 불가능하며, 검색조건이 포함될 경우 JPQL을 사용해야함.
-<pre>
-    <code>
-        TypedQuery&lt;Member&gt; memberFindQuery = em.createQuery("select m from Member m", Member.class);
-        List&lt;Member&gt; members = memberFindQuery.getResultList()
-    </code>
-</pre>
+```java
+TypedQuery<Member> memberFindQuery = 
+    em.createQuery("select m from Member m", Member.class);
+List<Member> members = memberFindQuery.getResultList()
+```
+
+
+
  
 
    
