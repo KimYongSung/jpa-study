@@ -82,23 +82,21 @@
 <property name="hibernate.id.new_generator_mappings" value="true" />
 ```
 
+* 아래 자바 타입에만 사용 가능함.
+  * 자바 기본형
+  * 자바 래퍼( wrapper ) 형
+  * String
+  * java.util.Date
+  * java.sql.Date
+  * java.math.BigDecimal
+  * java.math.BigInteger
+
 
 
 ### 2.1 기본 키 직접 할당 전략
 
 * @ID로 매핑하여 사용 가능
 
-* 아래 자바 타입에만 사용 가능함.
-
-  + 자바 기본형
-  + 자바 래퍼( wrapper ) 형
-  + String
-  + java.util.Date
-  + java.sql.Date
-  + java.math.BigDecimal
-  + java.math.BigInteger
-
-  
 
 ```java
 Member member = new Member();
@@ -286,3 +284,89 @@ public class Member {
 }    
 ```
 
+
+
+### 2.4 TABLE 전략
+
+* 키 생성 전용 테이블을 생성하여 시퀀스를 흉내내는 전략.
+* 키 생성을 위해서 데이터베이스에 SELECT, UPDATE 를 통한 두번 통신.
+* 최적화 필요시 allocationSize  속성 값의 크기를 지정.
+* 시쿼스 이름과 값 컬럼을 사용
+
+```sql
+CREATE TABLE MY_SEQUENCES (
+	SEQUENCE_NAME VARCHAR(255) NOT NULL,
+    NEXT_VAL BIGINT,
+    PRIMARY KEY ( SEQUENCE_NAME )
+)
+```
+
+```java
+@Entity
+@Table(name = "GOODS")
+@NoArgsConstructor
+@TableGenerator(
+        name="GOODS_SEQ_GENERATOR",
+        table = "MY_SEQUENCES",
+        pkColumnValue = "goodsCd", allocationSize = 1
+        )
+public class Goods {
+
+    @Id
+    @Column(unique = true)
+    @GeneratedValue(strategy = GenerationType.TABLE, generator="GOODS_SEQ_GENERATOR")
+    private Long goodsCd;
+
+    @Column(nullable = false, length = 200)
+    private String goodsName;
+
+    @Column(nullable = false)
+    private Long goodsPrice;
+    
+    ...
+}
+
+Goods goods = new Goods();
+goods.setGoodsPrice(1000l);
+goods.setGoodsName("허쉬초코우유");
+em.persist(goods);
+System.out.println("goodsCd : " + goods.getGoodsCd());
+// goodsCd : 1
+```
+
+> MY_SEQUENCES 테이블 
+
+| SEQUENCE_NAME | NEXT_VAL |
+| :------------ | :------- |
+| goodsCd       | 2        |
+
+#### 2.4.1 @TableGenerator 속성
+
+* name : 식별자 생성기 이름 ( **필수** )
+
+* table : 키생성 테이블명 ( 기본값 : hibernate_sequences )
+* pkColumnName : 시퀀스 컬럼명 ( 기본값 : sequence_name )
+* valueColumnName : 시퀀스 값 컬럼명 ( 기본값 : next_val )
+* pkColumnValue : 키로 사용할 값 이름
+* initialValue : 초기 값. 
+* allocationSize : 시퀀스 한 번 호출에 증가하는 수
+* catalog, schema : 데이터베이스 catalog, scheme 이름
+* uinqueConstrationts : 유니크 제약 조건을 지정.
+
+
+
+### 2.5 AUTO 전략
+
+* 데이터베이스 방언에 따라서 자동으로 선택하여 키 생성 전략 사용.
+
+
+
+## 3. 필드와 컬럼 매핑
+
+### 3.1 @Column
+
+* 객체 필드를 테이블 컬럼에 매핑한다.
+* 설정 생략시 자바 기본 타입일 경우 nullable = false 로 지정하는것이 안전하다.
+  * int 형으로 선언된 필드에 데이터가 없는 경우
+
+* 
