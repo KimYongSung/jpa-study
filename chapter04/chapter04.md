@@ -26,9 +26,35 @@
 #### 1.2.1 @Table 속성
 
 * name : 매핑할 테이블 이름 ( 기본값 : 엔티티 이름을 사용 )
+
 * catalog : catalog 기능이 있는 데이터베이스에서 catalog를 매핑
+
 * schema : schema 기능이 있는 데이터베이스에서 schema를 매핑
-* uniqueConstraints : DDL 생성 시에 유니크 제약조건을 만듬. 해당 기능은 스키마 자동생성 기능을 사용할때만 적용.
+
+* uniqueConstraints ( DDL ) : DDL 생성 시에 유니크 제약조건을 만듬. 해당 기능은 스키마 자동생성 기능을 사용할때만 적용.
+
+  ```java
+  @Entity
+  @Table(name = "MEMBER"
+       , uniqueConstraints = {@UniqueConstraint(name = "", columnNames = {"NAME", "AGE"})}
+  )
+  public class Member {
+      ...
+          
+      @Column(nullable = false, length = 20)
+      private String name;
+      
+      @Column(nullable = false)
+      private Integer age;
+      
+      ...
+  }
+  ```
+
+  ```sql
+  alter table member 
+  add constraint UK_7grc9xe7fcp7fwi54wsxhufk4  unique (name, age)
+  ```
 
 ### 1.3 데이터베이스 스키마 자동생성
 
@@ -366,7 +392,109 @@ System.out.println("goodsCd : " + goods.getGoodsCd());
 ### 3.1 @Column
 
 * 객체 필드를 테이블 컬럼에 매핑한다.
-* 설정 생략시 자바 기본 타입일 경우 nullable = false 로 지정하는것이 안전하다.
+* 설정 생략시 **자바 기본 타입일 경우 nullable = false 로 지정하는것이 안전**하다.
   * int 형으로 선언된 필드에 데이터가 없는 경우
 
-* 
+
+#### 3.1.2 @Column 속성
+
+* name : 필드와 매핑할 테이블의 컬럼 이름 ( 기본값 : 객체의 필드 이름 )
+
+* insertable : 엔티티 저장 시 이 필드도 같이 저장. false 설정시 해당 필드는 저장하지 않는다. ( 기본값 : true )
+
+* updatable : 엔티티 수정 시 이필드도 같이 수정한다. false 설정시 수정하지 않는다. ( 기본값 : true )
+
+* table : 하나의 엔티티를 두개 이상의 테이블에 매핑할 때 사용.
+
+* nullable ( DDL ) : null 값의 허용 여부를 설정. false 설정시 DDL 생성시에 NOT NULL 제약조건 생성. ( 기본값 : true )
+
+  ```java
+  @Column(nullable = false)
+  private Long goodsPrice;
+  ```
+
+  ```sql
+  //생성된 DDL
+  goods_price bigint not null
+  ```
+
+* unique ( DDL ): 한 컬럼에 간단한 유니크 제약조건을 걸 때 사용. **두 컬럼 이상 지정**시 클래스 레벨에서 `@Table.uniqueConstraints` 를 지정해야함.
+
+  ```java
+  @Column(unique = true)
+  private Long goodsCd;
+  ```
+
+  ```sql
+  //생성된 DDL
+  goods_cd bigint not null
+  primary key (goods_cd)
+  ```
+
+* columnDefinition ( DDL ) : 데이터 베이스 컬럼 정보를 직접 줄 수 있다. 
+
+  ```java
+  @Column(columnDefinition = "varchar(100) default 'EMPTY'")
+  private String desc;
+  ```
+
+  ```sql
+  //생성된 DDL
+  desc varchar(100) default 'EMPTY'
+  ```
+
+* precision,scale ( DDL ) : BigDecimal, BigInteger 타입에서 사용함.  precision은 소숫점을 포함한 전체 자릿수를, scale은 소수의 자릿수.
+
+### 3.2 @Enumerated
+
+* 자바의 enum 타입을 매핑할 때 사용한다.
+
+#### 3.2.1 @Enumerated name 속성
+
+* EnumType.ORDINAL :  enum 순서를 데이터베이스에 저장. ( 기본값 )
+  * 데이터베이스에 저장되는 크기가 작다.
+  * 이미 저장된 enum 순서를 변경할 수 없다.
+* EnumType.STRING : enum 이름을 데이터베이스에 저장.
+  * 저장된 enum 의 순서가 바귀거나 enum이 추가되어도 안전하다.
+  * 데이터베이스에 저장되는 크기가 ORDINAL 보다 크다.
+
+### 3.3 @Temporal
+
+* 날짜 타입 `java.util.Date`, `java.util.Calendar` 매핑시 사용.
+* java8 이상부터 등장한 `java.time.LocalDate, java.time.LocalDateTime` 매핑시 JPA2.2 이상 ( Hibernate 5 이상) 사용시 매핑 가능.
+
+```java
+@Temporal(TemporalType.DATE)
+private Date regDate;
+
+@Temporal(TemporalType.TIME)
+private Date regTime;
+
+@Temporal(TemporalType.TIMESTAMP)
+private Date regTimeStamp;
+```
+
+```sql
+reg_date date,
+reg_time time,
+reg_time_stamp timestamp
+```
+
+### 3.4 @Lob
+
+* 데이터베이스 BLOB, CLOB 타입과 매핑.
+* 지정할 수 있는 속성이 없음.
+* 매핑하는 필드 타입이 문자인 경우 CLOB, 나머지는 BLOB으로 매핑.
+  * CLOB : String, char[], java.sql.CLOB
+  * BLOB : byte[], java.sql.BLOB
+
+### 3.5 @Transient
+
+* 데이터베이스에 저장, 조회시 매핑하지 않음.
+* 임시로 값을 보관하는 용도로 사용함.
+
+### 3.6 @Access
+
+* JPA가 엔티티 데이터에 접근하는 방식을 지정.
+* AccessType.FIELD : 필드로 직접 접근. private이어도 접근이 가능하다.
+* AccessType.PROPERTY : getter로 접근한다.
