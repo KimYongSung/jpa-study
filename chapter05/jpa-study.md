@@ -4,22 +4,20 @@
 
 ### 1. 단방향 연관관계와 양방향 연관관계
 
-![클래스다이어그램](F:\localRepo\jpa-study\chapter05\img\회원_주문_class_diagram.jpeg)
+![&#xD074;&#xB798;&#xC2A4;&#xB2E4;&#xC774;&#xC5B4;&#xADF8;&#xB7A8;](../.gitbook/assets/_-_class_diagram.jpeg)
 
-![erd](F:\localRepo\jpa-study\chapter05\img\회원_주문_erd.png)
+![erd](../.gitbook/assets/_-_erd.png)
 
-- 객체는 참조(주소)로 연관관계를 맺는다.
-  - 객체는 그래프 탐색을 통하여 조회
-  - 양방향 관계를 맺기 위해서는 단방향 관계를 2개 만들어야한다.
+* 객체는 참조\(주소\)로 연관관계를 맺는다.
+  * 객체는 그래프 탐색을 통하여 조회
+  * 양방향 관계를 맺기 위해서는 단방향 관계를 2개 만들어야한다.
 
 ```java
 // 객체 그래프 탐색
 Member member = order.getMember()
 ```
 
-
-
-- 테이블은 외래 키로 연관관계를 맺는다.
+* 테이블은 외래 키로 연관관계를 맺는다.
   * 외래키로 or PK로 조회가 가능하다.
 
 ```sql
@@ -28,8 +26,6 @@ FROM MEMBER T1, ORDER T2
 WHERE ORDER_NO = :orderNo
 AND   T2.MEMBER_NO = :memberNo
 ```
-
-
 
 ### 2. 객체 관계 매핑
 
@@ -56,7 +52,7 @@ public class Orders {
     @ManyToOne
     @JoinColumn(name="MEMBER_NO")
     private Member member;
-    
+
     ...
 }    
 
@@ -68,7 +64,7 @@ public class Orders {
 @Getter
 @Setter
 public class Member {
-    
+
     @Id
     @Column(length = 20, unique = true)
     @GenericGenerator(name = "seqGenerator"
@@ -85,14 +81,10 @@ public class Member {
 }
 ```
 
-
-
-* @ManyToOne : 다대일(N:1) 관계 매핑 정보 설정.
+* @ManyToOne : 다대일\(N:1\) 관계 매핑 정보 설정.
 * @JoinColumn : 외래 키 매핑시 사용.
   * @JoinColumn 생략시 기본적략을 사용한다.
-    * 기본전략 : 필드명 + _ + 참조하는 테이블의 컬럼명
-
-
+    * 기본전략 : 필드명 + \_ + 참조하는 테이블의 컬럼명
 
 #### 2.2 양방향 연관관계 매핑
 
@@ -117,7 +109,7 @@ public class Orders {
     @ManyToOne
     @JoinColumn(name="MEMBER_NO")
     private Member member;
-    
+
     ...
 }    
 
@@ -129,7 +121,7 @@ public class Orders {
 @Getter
 @Setter
 public class Member {
-    
+
     @Id
     @Column(length = 20, unique = true)
     @GenericGenerator(name = "seqGenerator"
@@ -141,7 +133,7 @@ public class Member {
                     )
     @GeneratedValue(generator = "seqGenerator")
     private String memberNo;
-    
+
     // 1:N 관계 매핑
     @OneToMany(mappedBy = "member", fetch = FetchType.LAZY)
     private List<Orders> orders = new ArrayList<>();
@@ -153,21 +145,14 @@ public class Member {
 
 테이블은 외래 키 하나로 테이블의 연관관계를 관리하지만, 엔티티는 단방향으로 참조를 하나만 사용한다. 결국 엔티티에서 양방향 관계를 맺기 위해서는 `객체가 서로서로 단방향 매핑을 통하여 사용`해야한다.
 
- JPA에서는 `두 객체 연관관계 중 하나를 정해서 테이블의 외래키를 관리해야하는데 이것을 연관관계의 주인` 이라 한다. 
+JPA에서는 `두 객체 연관관계 중 하나를 정해서 테이블의 외래키를 관리해야하는데 이것을 연관관계의 주인` 이라 한다.
 
 * **mappedBy 속성**
-
-  + 주인은 mappedBy 속성을 사용하지 않는다.
-
-  + 주인이 아닐 경우 mappedBy 속성을 사용하여 속성의 값으로 연관관계 주인을 지정해야한다.
-
-  + mappedBy 속성 적용시 읽기만 가능하다.
-
-    
+  * 주인은 mappedBy 속성을 사용하지 않는다.
+  * 주인이 아닐 경우 mappedBy 속성을 사용하여 속성의 값으로 연관관계 주인을 지정해야한다.
+  * mappedBy 속성 적용시 읽기만 가능하다.
 
 > 데이터베이스 테이블의 다대일, 일대다 관계에서는 항상 다 쪽이 외래키를 가진다.
-
-
 
 ### 3. 단방향 매핑 객체 DML 사용
 
@@ -175,7 +160,7 @@ public class Member {
 
 ```java
 public static void logic(EntityManager em) {
-       
+
     Member member = new Member();
     member.setId("kys0213");
     member.setPwd("kys0213");
@@ -198,16 +183,14 @@ private static Orders 주문요청(EntityManager em, Member member, String addr)
 }
 ```
 
-
-
 #### 3.2 연관관계 조회
 
 * 객체 그래프 탐색으로 조회
 * JPQL 을 사용하여 조회
 
-```jade
+```text
 String jpql = "select o from Orders o join o.member m where m.memberNo = :meberNo";
-        
+
 List<Orders> resultList = em.createQuery(jpql, Orders.class)
                             .setParameter("meberNo", member.getMemberNo())
                             .getResultList();
@@ -242,8 +225,6 @@ where
       member1_.member_no=?
 ```
 
-
-
 #### 3.3 연관관계 제거
 
 * 연관된 엔티티 삭제시 기존 연관관계를 먼저 제거하고 삭제해야함. 
@@ -253,8 +234,6 @@ Orders order = em.find(Orders.class, 1);
 order.setMember(null);
 ```
 
-
-
 ### 4. 양방향 매핑 객체 DML 사용
 
 * 기본적인 DML 사용방법은 단방향 매핑과 똑같다.
@@ -263,7 +242,7 @@ order.setMember(null);
 
 ```java
 public static void logic(EntityManager em) {
-       
+
     Member member = new Member();
     member.setId("kys0213");
     member.setPwd("kys0213");
@@ -306,25 +285,25 @@ public class Orders {
     private Member member;
 
     private String orderAddr;
-    
+
     @Temporal(value = TemporalType.TIMESTAMP)
     private Date orderDt;
 
     // Member 관계 매핑시 Member의 orders도 매핑처리
     public void setMember(Member member) {
-        
+
         // 1. 기존에 매핑된 Member가 있을 경우 관계 제거
         if(this.member != null) {
             this.member.getOrders().remove(this);
         }
-        
+
         // 2. 새로운 Member 관계 매핑
         this.member = member;
-        
+
         // 3. Member에도 현재 주문 엔티티 관계 매핑
         member.getOrders().add(this);
     }
-    
+
     @Override
     public String toString() {
         return "Orders [orderNo=" + orderNo + ", member=" + member + ", orderAddr="
@@ -335,6 +314,4 @@ public class Orders {
 
 * `연관관계 주인에는 값을 입력하지 않고, 주인이 아닌 곳에만 값을 입력하는 경우 정상적으로 저장되지 않는다.`
 * 위의 Orders 엔티티 클래스의 setMember 메소드 처럼 매핑을 지정해야한다.
-
-
 
