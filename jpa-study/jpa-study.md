@@ -26,9 +26,9 @@
   * SQL을 직접 핸들링할 경우 테이블 스키마가 변경시 SQL 문을 매핑하기 위한 JDBC API 코드를 모두 변경해야함.
   * JPA를 통하여 사용할 경우 JDBC API 코드가 존재하지 않음.
   * 객체지향적인 설계로 좋은 유지보수하기 용이한 도메인모델로 개발이 가능. 
-    + 관계형 데이터베이스의 연관관계\(relationship\) 를 객체로 모델링이 가능
-    + 실행되는 SQL문에 의존적인 대이터가 아니라, 객체를 이요한 그래프 탐색이 가능
-    + JDBC API를 통하여 SQL을 직접 핸들링하는 경우 객체 자체를 비교할 경우 일치하지 않음.
+    * 관계형 데이터베이스의 연관관계\(relationship\) 를 객체로 모델링이 가능
+    * 실행되는 SQL문에 의존적인 대이터가 아니라, 객체를 이요한 그래프 탐색이 가능
+    * JDBC API를 통하여 SQL을 직접 핸들링하는 경우 객체 자체를 비교할 경우 일치하지 않음.
 
 > SQL 사용시
 >
@@ -48,19 +48,18 @@
    Member member01 = memberDao.getMember(memberId);
    Member member02 = memberDao.getMember(memberId);
    member01 == member02; // java heap의 메모리 주소가 다름.
-   ```
-
-
-
-
-   > JPA 사용시
-   ```java
-   String memberId = "kys0213";
-   Member member01 = jpa.find(Member.class, memberId);
-   Member member02 = jpa.find(Member.class, memberId);
-   member01 == member02; // 같다
-   ```
 ```
+
+> JPA 사용시
+>
+> ```java
+>    String memberId = "kys0213";
+>    Member member01 = jpa.find(Member.class, memberId);
+>    Member member02 = jpa.find(Member.class, memberId);
+>    member01 == member02; // 같다
+> ```
+>
+> \`\`\`
 
 * 성능상 이점
   * 어플리케이션과 데이터베이스 사이에서 다양한 성능 최적화 기회를 제공
