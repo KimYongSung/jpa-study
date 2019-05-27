@@ -18,7 +18,7 @@ member.setId("dydtjd0245");
 member.setUsername("용성");
 ```
 
-![&#xBE44;&#xC601;&#xC18D;&#xC0C1;&#xD0DC;](../.gitbook/assets/undefined.png)
+![&#xBE44;&#xC601;&#xC18D;&#xC0C1;&#xD0DC;](./img/비영속.png)
 
 ### 1.2 영속
 
@@ -30,7 +30,7 @@ member.setUsername("용성");
 em.persist(member);
 ```
 
-![&#xC601;&#xC18D;&#xC0C1;&#xD0DC;](../.gitbook/assets/undefined%20%281%29.png)
+![&#xC601;&#xC18D;&#xC0C1;&#xD0DC;](./img/영속.png)
 
 ### 1.3 준영속
 
@@ -106,6 +106,7 @@ em.remove(member);
 
 * 엔티티 삭제의 경우로 쓰기 지연 SQL 저장소에 등록.
 * remove\(\) 호출시 핸당 엔티티는 영속성 컨텍스트에서 제거.
+  
   * 제거된 엔티티는 GC 대상에 포함되도록 재사용 하지 않는것이 좋다.
 * 엔티티를 삭제할려면 삭제대상 엔티티를 조회해야함.
 
