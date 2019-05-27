@@ -1,6 +1,6 @@
 # Chapte03
 
-[TOC]
+
 
 ## 1. 엔티티의 생명주기
 
@@ -22,7 +22,7 @@ member.setUsername("용성");
 
 
 
-![비영속상태](./img/비영속.png)
+![비영속상태](./chapter03/img/비영속.png)
 
 ### 1.2 영속
 
@@ -36,7 +36,7 @@ em.persist(member);
 
 
 
-![영속상태](./img/영속.png)
+![영속상태](./chapter03/img/영속.png)
 
 
 
