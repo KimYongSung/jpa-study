@@ -4,7 +4,7 @@
 
 챕터별 정리
 
-## Chapter01 : [chapter01.md](jpa-study/jpa-study.md)
+## Chapter01 : [chapter01.md](jpa-study/chapter01.md)
 
 ## Chapter02 : [chapter02.md](chapter02/chapter02.md)
 

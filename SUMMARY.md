@@ -10,5 +10,5 @@
 * [chapter02](chapter02/README.md)
   * [Chapte02](chapter02/chapter02.md)
 * [chapter01](jpa-study/README.md)
-  * [Chapte01](jpa-study/jpa-study.md)
+  * [Chapte01](jpa-study/chapter01.md)
 
