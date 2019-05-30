@@ -23,10 +23,17 @@ Member member = order.getMember()
   * 외래키로 or PK로 조회가 가능하다.
 
 ```sql
+// 회원번호로 주문정보 조회
 SELECT T2.*
 FROM MEMBER T1, ORDER T2
-WHERE ORDER_NO = :orderNo
-AND   T2.MEMBER_NO = :memberNo
+WHERE T1.MEMBER_NO = :memberNo
+AND   T2.MEMBER_NO = T1.MEMBER_NO
+
+// 주문정보로 회원정보 조회
+SELECT T1.*
+FROM MEMBER T1, ORDER T2
+WHERE T1.ORDER_NO = :orderNo
+AND   T2.MEMBER_NO = T1.MEMBER_NO
 ```
 
 
