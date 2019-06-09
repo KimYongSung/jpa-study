@@ -946,6 +946,114 @@ public class Category {
 
 #### 4.3 다대다 매핑의 한계
 
-* 조인 테이블에 컬럼을 추가할 수 없어서 실무에서 사용하기에는 한계가 있다.
-* 다대다 매핑시 조인 테이블대신 연결테이블을 추가하여 매핑해야 한다.
+* 조인 테이블에 `컬럼을 추가할 수 없어서` 실무에서 사용하기에는 한계가 있다.
+* 다대다 매핑시 조인 테이블대신 `연결테이블을 추가하여 매핑`해야 한다.
+
+![연결엔티티사용](./img/다대다_연결엔티티.png)
+
+```java
+// goods 엔티티 클래스
+@Entity
+@Table(name = "GOODS")
+@NoArgsConstructor
+@TableGenerator(
+        name="GOODS_SEQ_GENERATOR",
+        table = "MY_SEQUENCES",
+        pkColumnValue = "goodsCd", allocationSize = 1
+        )
+@Getter
+@Setter
+@ToString(exclude = "goodsCategorys")
+public class Goods {
+
+    @Id
+    @Column(unique = true)
+    @GeneratedValue(strategy = GenerationType.TABLE, generator="GOODS_SEQ_GENERATOR")
+    private Long goodsCd;
+
+    @Column(nullable = false, length = 200)
+    private String name;
+
+    @Column(nullable = false)
+    private Long price;
+    
+    // 1:N 매핑
+    @OneToMany(mappedBy = "goods", fetch = FetchType.LAZY)
+    private List<GoodsCategory> goodsCategorys = new ArrayList<>();
+ 
+}
+
+// GoodsCategory 엔티티 클래스
+@Entity(name = "GOODS_CATEGORY")
+@Getter
+@Setter
+@ToString
+@NoArgsConstructor
+public class GoodsCategory {
+    
+    @Id 
+    @GeneratedValue
+    @Column(name = "GOODS_CATEGORY_ID")
+    private Long id;
+    
+    // N:1 매핑
+    @ManyToOne
+    @JoinColumn(name = "GOODS_CD")
+    private Goods goods;
+    
+    // N:1 매핑
+    @ManyToOne
+    @JoinColumn(name = "CATEGORY_ID")
+    private Category category;
+    
+    // Goods 연관관계 매핑 메소드
+    public void setGoods(Goods goods) {
+        
+        if(this.goods != null) {
+            this.goods.getGoodsCategorys().remove(this);
+        }
+        
+        this.goods = goods;
+        
+        if(goods != null) {
+            goods.getGoodsCategorys().add(this);
+        }
+    }
+    
+    // Category 연관관계 매핑 메소드
+    public void setCategory(Category category) {
+        
+        if(this.category != null) {
+            this.category.getGoodsCategorys().remove(this);
+        }
+        
+        this.category = category;
+        
+        if(category != null) {
+            category.getGoodsCategorys().add(this);
+        }
+    }
+}
+
+// Category 엔티티 클래스
+@Entity
+@Table(name = "CATEGORY")
+@TableGenerator(pkColumnValue = "id", name = "CATEGORY")
+@Getter
+@Setter
+@ToString(exclude = "goodsCategorys")
+public class Category {
+
+    @Id
+    @GeneratedValue
+    @Column(name = "CATEGORY_ID")
+    private Long id;
+    
+    private String name;
+    
+    @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
+    private List<GoodsCategory> goodsCategorys = new ArrayList<>();
+    
+}
+```
 
