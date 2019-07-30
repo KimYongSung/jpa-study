@@ -139,3 +139,211 @@ public class Hamburger extends Goods{
   * 조회할 때 조인이 맣이 사용되므로 성능이 저하될 수 있다.
   * 조회 쿼리가 복잡하다.
   * 데이터를 등록할 INSERT SQL을 두 번 실행한다.
+
+
+
+### 1.3 단일 테이블 전략
+
+![단일테이블전략](./img/객체상속모델_단일테이블전략.png)
+
+* 자식 엔티티가 매핑한 컬럼은 모두 null을 허용해야 한다.
+
+#### 1.3.1 단일테이블 전략 설정
+
+```java
+@Entity
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@Table(name = "GOODS")
+@TableGenerator(
+        name="GOODS_SEQ_GENERATOR",
+        table = "MY_SEQUENCES",
+        pkColumnValue = "goodsCd", allocationSize = 1
+        )
+@NoArgsConstructor
+@Getter
+@Setter
+@ToString(exclude = "goodsCategorys")
+public abstract class Goods {
+
+    @Id
+    @Column(unique = true)
+    @GeneratedValue(strategy = GenerationType.TABLE, generator="GOODS_SEQ_GENERATOR")
+    private Long goodsCd;
+
+    @Column(nullable = false, length = 200)
+    private String name;
+
+    @Column(nullable = false)
+    private Long price;
+    
+    @Enumerated
+    private GoodsType goodsType;
+    
+    @OneToMany(mappedBy = "goods", fetch = FetchType.LAZY)
+    private List<GoodsCategory> goodsCategorys = new ArrayList<>();
+
+    public Goods(String name, Long price) {
+        super();
+        this.name = name;
+        this.price = price;
+    }
+}
+
+// Goods 를 상속받은 chicken 메뉴 정보 테이블
+@Entity
+@DiscriminatorValue("C")
+@Getter
+@Setter
+@NoArgsConstructor
+@ToString(callSuper = true)
+public class Chicken extends Goods{
+
+    @Column
+    private Long size;
+    
+}
+
+// Goods 를 상속받은 Drink 메뉴 정보 테이블
+@Entity
+@DiscriminatorValue("D")
+@Getter
+@Setter
+@NoArgsConstructor
+@ToString(callSuper = true)
+public class Drink extends Goods{
+
+    @Column
+    private Long ml;
+}
+
+// Goods 를 상속받은 Hamburger 메뉴 정보 테이블
+@Entity
+@DiscriminatorValue("H")
+@Getter
+@Setter
+@NoArgsConstructor
+@ToString(callSuper = true)
+public class Hamburger extends Goods{
+
+    @Column
+    private Long ml;
+}
+```
+
+
+
+#### 1.3.2 단일테이블 전략 장단점
+
+* 장점
+  * 조인이 필요 없으므로 일반적으로 조회 성능이 빠르다.
+  * 조회 쿼리가 단순하다
+* 단점
+  * 자식 엔티티가 매핑한 컬럼은 모두 null을 허용해야 한다.
+  * 다일 테이블에 모든 것을 저장하므로 테이블이 커질 수 있다. 상황에 따라서 조회 성능이 느려질 수 있다.
+* 특징
+  *  @DiscriminatorColumn 설정 필수
+  * 지정하지 않을 경우 엔티티 이름을 사용한다.
+
+
+
+### 1.4 구현클래스별 테이블 전략
+
+![구현클래스별 테이블 전략](./img/객체상속모델_구현클레스별테이블전략.png)
+
+* 구현 클래스마다 테이블을 생성한다. 
+* 일반적으로 추천하지 않는 전략이다.
+
+
+
+#### 1.4.1 구현클래스별 테이블 전략 설정
+
+```java
+@Entity
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
+@Table(name = "GOODS")
+@TableGenerator(
+        name="GOODS_SEQ_GENERATOR",
+        table = "MY_SEQUENCES",
+        pkColumnValue = "goodsCd", allocationSize = 1
+        )
+@NoArgsConstructor
+@Getter
+@Setter
+@ToString(exclude = "goodsCategorys")
+public abstract class Goods {
+
+    @Id
+    @Column(unique = true)
+    @GeneratedValue(strategy = GenerationType.TABLE, generator="GOODS_SEQ_GENERATOR")
+    private Long goodsCd;
+
+    @Column(nullable = false, length = 200)
+    private String name;
+
+    @Column(nullable = false)
+    private Long price;
+    
+    @Enumerated
+    private GoodsType goodsType;
+    
+    @OneToMany(mappedBy = "goods", fetch = FetchType.LAZY)
+    private List<GoodsCategory> goodsCategorys = new ArrayList<>();
+
+    public Goods(String name, Long price) {
+        super();
+        this.name = name;
+        this.price = price;
+    }
+}
+
+// Goods 를 상속받은 chicken 메뉴 정보 테이블
+@Entity
+@DiscriminatorValue("C")
+@Getter
+@Setter
+@NoArgsConstructor
+@ToString(callSuper = true)
+public class Chicken extends Goods{
+
+    @Column
+    private Long size;
+    
+}
+
+// Goods 를 상속받은 Drink 메뉴 정보 테이블
+@Entity
+@DiscriminatorValue("D")
+@Getter
+@Setter
+@NoArgsConstructor
+@ToString(callSuper = true)
+public class Drink extends Goods{
+
+    @Column
+    private Long ml;
+}
+
+// Goods 를 상속받은 Hamburger 메뉴 정보 테이블
+@Entity
+@DiscriminatorValue("H")
+@Getter
+@Setter
+@NoArgsConstructor
+@ToString(callSuper = true)
+public class Hamburger extends Goods{
+
+    @Column
+    private Long ml;
+}
+```
+
+
+
+#### 1.4.2 구현클래스별 테이블 전략 설정 장단점
+
+* 장점
+  * 서브 타입을 구분해서 처리할 때 효과적이다.
+  * not null 제약조건을 사용할 수 있다.
+* 단점
+  * 여러 자식 테이블을 함께 조회할 때 성능이 느리다.
+  * 자식 테이블을 통합해서 쿼리하기 어렵다.
