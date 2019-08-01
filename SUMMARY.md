@@ -8,3 +8,5 @@
 
 * [chapter06](chapter06.md)
 
+* [chapter07](chapter07.md)
+
