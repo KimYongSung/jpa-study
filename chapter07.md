@@ -347,3 +347,38 @@ public class Hamburger extends Goods{
 * 단점
   * 여러 자식 테이블을 함께 조회할 때 성능이 느리다.
   * 자식 테이블을 통합해서 쿼리하기 어렵다.
+
+
+
+### 1.5 @MappedSuperclass
+
+* 테이블과 매핑하지 않고 자식 클래스에게 매핑 정보만 제공하고 싶을경우 사용한다.
+* 추상클래스와 비슷하며 실제 테이블과 매핑하지 않는다.
+* 테이블과 관계가 없고 단순히 엔티티가 공통으로 사용하는 매핑 정보를 모아주는 역할을 한다.
+* 등록일자, 수정일자, 등록자, 수정자 같은 여러 엔티티에서 공통으로 사용하는 속성을 관리 할 수 있다.
+
+![@MappedSuperclass](./img/MappedSuperclass.png)
+
+![클래스다이어그램](./img/MappedSuperclass_class.png)
+
+#### 1.5.1 @AttributeOverrides, @AttributeOverride
+
+* 부모로부터 물려받은 매핑 정보를 재정의할 때 사용한다.
+
+```java
+@AttributeOverride(name = "regDt", column = @Column(name = "ORDER_DT"))
+public class Orders extends DateBaseEntity{ ... }
+```
+
+```java
+@AttributeOverrides({
+    @AttributeOverride(name = "regDt", column = @Column(name = "ORDER_DT"))
+    , @AttributeOverride(name = "chgDt", column = @Column(name = "ORDER_CHG_DT"))
+})
+public class Orders extends DateBaseEntity{
+```
+
+#### 1.5.2 @AssociationOverrides, @AssociationOverride
+
+* 부모로부터 물려받은 연관관계를 재정의할 때 사용한다.
+
