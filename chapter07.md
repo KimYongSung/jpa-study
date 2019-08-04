@@ -366,6 +366,22 @@ public class Hamburger extends Goods{
 * 부모로부터 물려받은 매핑 정보를 재정의할 때 사용한다.
 
 ```java
+@Getter
+@Setter
+@MappedSuperclass
+public abstract class DateBaseEntity {
+
+    @Column(name = "REG_DT")
+    @Temporal(value = TemporalType.TIMESTAMP)
+    private Date regDt;
+    
+    @Column(name = "CHG_DT")
+    @Temporal(value = TemporalType.TIMESTAMP)
+    private Date chgDt;
+}
+```
+
+```java
 @AttributeOverride(name = "regDt", column = @Column(name = "ORDER_DT"))
 public class Orders extends DateBaseEntity{ ... }
 ```
@@ -375,10 +391,120 @@ public class Orders extends DateBaseEntity{ ... }
     @AttributeOverride(name = "regDt", column = @Column(name = "ORDER_DT"))
     , @AttributeOverride(name = "chgDt", column = @Column(name = "ORDER_CHG_DT"))
 })
-public class Orders extends DateBaseEntity{
+public class Orders extends DateBaseEntity{ ... }
 ```
 
 #### 1.5.2 @AssociationOverrides, @AssociationOverride
 
 * 부모로부터 물려받은 연관관계를 재정의할 때 사용한다.
+
+
+
+## 2. 복합 키와 식별관계매핑
+
+* 테이블 사이에 관계는 외래 키가 기본 키 포함되는지 여부에 따라서 식별 관계와 비식별 관계로 구분함.
+
+### 2.1 식별관계 ( Identifying Relationship )
+
+* 부모테이블의 기본 키를 내려 받아서 자식 테이블의 기본 키 + 외래키로 사용한다.
+
+![식별관계 erd](./img/식별관계_ERD.png)
+
+### 2.2 비식별 관계 ( Non-Identifying Relationship )
+
+* 부모 테이블의 기본 키를 받아서 자식 테이블의 외래 키로만 사용하는 관계.
+
+![](./img/비식별관계_ERD.png)
+
+* 필수적 비식별 관계 (Mandatory) : 외래 키에 NULL을 허용하지 않는다. 연관관계를 필수적으로 맺어야 한다.
+* 선택적 비식별 관계 (Optional) : 외래 키에 NULL을 허용한다. 연관관계를 맺을지 말지 선택할 수 있다.
+
+
+
+### 2.3 복합키 매핑
+
+* JPA는 영속성 컨텍스트에 엔티티를 보관할 때 엔티티의 식별자를 키로 사용하고 equals와 hashCode를 사용해서 동등성 비교를 한다. 
+* 식별자 필드가 2개 이상일 경우 별도의 식별자 클래스를 만들고 equals와 hashCode를 구현해야 한다.
+
+
+
+#### 2.3.1 @IdClass
+
+```java
+@SuppressWarnings("serial")
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor
+@EqualsAndHashCode
+public class ParentId implements Serializable{
+    
+    private String id;
+    
+    private String id2;
+}
+```
+
+```java
+@Entity
+@IdClass(value = ParentId.class)
+@Getter
+@Setter
+@NoArgsConstructor
+public class Parent {
+
+    @Id
+    @Column(name="PARENT_ID")
+    private String id; // ParentId.id 와 연결
+    
+    @Id
+    @Column(name="PARENT_ID2")
+    private String id2; // ParentId.id2 와 연결
+    
+    private String name;
+    
+}
+```
+
+```java
+@Entity
+public class Child {
+    
+    @Id
+    private String id;
+    
+    @ManyToOne
+    @JoinColumns({
+        @JoinColumn(name = "PARENT_ID", referencedColumnName = "PARENT_ID"),
+        @JoinColumn(name = "PARENT_ID2", referencedColumnName = "PARENT_ID2")
+    })
+    private Parent parent;
+}
+```
+
+* 식별자 클래스의 속성명과 엔티티에서 사용하는 식별자의 속성명이 같아야 한다.
+* Serializable 인터페이스를 구현해야한다.
+* equals와 hashCode를 구현해야 한다.
+* 기본 생성자가 있어야 한다.
+* 식별자 클래스는 public 이어야 한다.
+
+##### 2.3.1.1 저장
+
+* em.persist 호출시 영속성 컨텍스트에 엔티티를 등록하기 전에 내부에서 Parent.id, Parent.id2 값을 사용해서 식별자 클래스를 생성하고 키로 사용한다.
+
+```java
+Parent parent = new Parent();
+parent.setId("myId1");
+parent.setId2("myId2");
+parent.setName("parentName");
+em.persist(parent);
+```
+
+##### 2.3.1.2 조회
+
+* 조회시 ParentId 를 사용하여 조회한다.
+
+```java
+ParentId parentId = new ParentId("myId1", "myId2");
+Parent parent = em.find(Parent.class, parentId);
+```
 
