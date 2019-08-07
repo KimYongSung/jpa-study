@@ -508,3 +508,78 @@ ParentId parentId = new ParentId("myId1", "myId2");
 Parent parent = em.find(Parent.class, parentId);
 ```
 
+#### 2.3.2 @EmbeddedId
+
+* @EmbededId는 @IdClass와 달리 조금 더 객체지향적인 방법이다.
+* @IdClass 와 다르게 @EmbeddedId를 적용한 식별자 클래스에 기본 키를 직접 매핑한다.
+
+```java
+@SuppressWarnings("serial")
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor
+@EqualsAndHashCode
+@Embeddable
+public class ParentId implements Serializable{
+    
+    @Column(name = "PARENT_ID")
+    private String id;
+    
+    @Column(name = "PARENT_ID2")
+    private String id2;
+    
+}
+```
+
+```java
+@Entity
+@Getter
+@Setter
+@NoArgsConstructor
+public class Parent {
+
+    @EmbeddedId
+    private ParentId id;
+    
+    private String name;
+    
+}
+```
+
+* @Embeddable 어노테이션을 붙여야 한다.
+* Serializable 인터페이스를 구현해야 한다.
+* equals, hashCode를 구현해야 한다.
+* 기본 생성자가 있어야 한다.
+* 식별자는 public 이어야 한다.
+
+##### 2.3.2.1 저장
+
+```java
+Parent parent = new Parent();
+ParentId parentId = new ParentId("myId1", "myId2");
+parent.setId(parentId);
+parent.setName("parentName");
+em.persist(parent);
+```
+
+##### 2.3.2.2 조회
+
+```java
+ParentId parentId = new ParentId("myId1", "myId2");
+```
+
+#### 2.3.3 equals(), hashCode()
+
+```java
+ParentId id1 = new ParentId("myId1", "myId2");
+ParentId id2 = new ParentId("myId1", "myId2");
+
+id1.equals(id2) <-- 결과는 과연 참일까?
+```
+
+* 일반적으로 equals와 hashCode를 구현하지 않는 경우 기본 Object 클래스의 equals와 hashCode를 호츨하므로 값이 일치하지 않는다.
+* 위의 이유로 적절하게 equals와 hashCode를 구현해야 한다.
+* lombok에서 제공하는 @EqualsAndHashCode 사용시 간편하게 재정의 할 수 있다.
+
+> 복합키에는 @GenerateValue를 사용 할 수 없다.
+
