@@ -410,75 +410,102 @@ public class Orders extends DateBaseEntity{ ... }
 
 ![식별관계 erd](./img/식별관계_ERD.png)
 
-### 2.2 비식별 관계 ( Non-Identifying Relationship )
-
-* 부모 테이블의 기본 키를 받아서 자식 테이블의 외래 키로만 사용하는 관계.
-
-![](./img/비식별관계_ERD.png)
-
-* 필수적 비식별 관계 (Mandatory) : 외래 키에 NULL을 허용하지 않는다. 연관관계를 필수적으로 맺어야 한다.
-* 선택적 비식별 관계 (Optional) : 외래 키에 NULL을 허용한다. 연관관계를 맺을지 말지 선택할 수 있다.
-
-
-
-### 2.3 복합키 매핑
+### 2.2 복합키 매핑
 
 * JPA는 영속성 컨텍스트에 엔티티를 보관할 때 엔티티의 식별자를 키로 사용하고 equals와 hashCode를 사용해서 동등성 비교를 한다. 
 * 식별자 필드가 2개 이상일 경우 별도의 식별자 클래스를 만들고 equals와 hashCode를 구현해야 한다.
 
 
 
-#### 2.3.1 @IdClass
+#### 2.2.1 @IdClass
+
+##### 2.2.1.2 식별관계
 
 ```java
-@SuppressWarnings("serial")
-@Getter
-@AllArgsConstructor
-@NoArgsConstructor
-@EqualsAndHashCode
-public class ParentId implements Serializable{
-    
-    private String id;
-    
-    private String id2;
-}
-```
-
-```java
-@Entity
-@IdClass(value = ParentId.class)
 @Getter
 @Setter
 @NoArgsConstructor
+@Entity
+@Table(name = "PARENT")
 public class Parent {
 
     @Id
-    @Column(name="PARENT_ID")
-    private String id; // ParentId.id 와 연결
+    @Column(name = "PARENT_ID")
+    private String id;
+    
+    private String name;
+}
+
+@Getter
+@Setter
+@NoArgsConstructor
+@Table(name = "CHILD")
+@Entity
+@IdClass(ChildId.class)
+public class Child {
     
     @Id
-    @Column(name="PARENT_ID2")
-    private String id2; // ParentId.id2 와 연결
+    @ManyToOne
+    @JoinColumn(name = "PARENT_ID")
+    private Parent parent;
+    
+    @Id
+    @Column(name = "CHILD_ID")
+    private String childId;
+    
+    private String name;
+}
+
+@SuppressWarnings("serial")
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@EqualsAndHashCode
+public class ChildId implements Serializable{
+
+    private String parent;
+    
+    private String childId;
+}
+
+@Getter
+@Setter
+@NoArgsConstructor
+@Table(name = "GRANDCHILD")
+@Entity
+@IdClass(GrandChildId.class)
+public class GrandChild {
+
+    @Id
+    @ManyToOne
+    @JoinColumns({
+        @JoinColumn(name = "PARENT_ID", referencedColumnName = "PARENT_ID"),
+        @JoinColumn(name = "CHILD_ID", referencedColumnName = "CHILD_ID")
+    })
+    private Child child;
+    
+    @Id
+    @Column(name = "GRANDCHILD_ID")
+    private String id;
     
     private String name;
     
 }
-```
 
-```java
-@Entity
-public class Child {
+@SuppressWarnings("serial")
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@EqualsAndHashCode
+public class GrandChildId implements Serializable{
+
+    private ChildId child;
     
-    @Id
     private String id;
-    
-    @ManyToOne
-    @JoinColumns({
-        @JoinColumn(name = "PARENT_ID", referencedColumnName = "PARENT_ID"),
-        @JoinColumn(name = "PARENT_ID2", referencedColumnName = "PARENT_ID2")
-    })
-    private Parent parent;
 }
+
 ```
 
 * 식별자 클래스의 속성명과 엔티티에서 사용하는 식별자의 속성명이 같아야 한다.
@@ -487,7 +514,7 @@ public class Child {
 * 기본 생성자가 있어야 한다.
 * 식별자 클래스는 public 이어야 한다.
 
-##### 2.3.1.1 저장
+##### 2.2.1.2 저장
 
 * em.persist 호출시 영속성 컨텍스트에 엔티티를 등록하기 전에 내부에서 Parent.id, Parent.id2 값을 사용해서 식별자 클래스를 생성하고 키로 사용한다.
 
@@ -499,7 +526,7 @@ parent.setName("parentName");
 em.persist(parent);
 ```
 
-##### 2.3.1.2 조회
+##### 2.2.1.3 조회
 
 * 조회시 ParentId 를 사용하여 조회한다.
 
@@ -508,41 +535,97 @@ ParentId parentId = new ParentId("myId1", "myId2");
 Parent parent = em.find(Parent.class, parentId);
 ```
 
-#### 2.3.2 @EmbeddedId
+#### 2.2.2 @EmbeddedId
 
-* @EmbededId는 @IdClass와 달리 조금 더 객체지향적인 방법이다.
-* @IdClass 와 다르게 @EmbeddedId를 적용한 식별자 클래스에 기본 키를 직접 매핑한다.
+- @EmbededId는 @IdClass와 달리 조금 더 객체지향적인 방법이다.
+- @IdClass 와 다르게 @EmbeddedId를 적용한 식별자 클래스에 기본 키를 직접 매핑한다.
+
+##### 2.2.2.1 식별관계
 
 ```java
+@Getter
+@Setter
+@NoArgsConstructor
+@Entity
+@Table(name = "PARENT")
+public class Parent {
+
+    @Id
+    @Column(name = "PARENT_ID")
+    private String id;
+    
+    private String name;
+    
+}
+
+@Getter
+@Setter
+@NoArgsConstructor
+@Table(name = "CHILD")
+@Entity
+public class Child {
+    
+    @EmbeddedId
+    private ChildId id;
+    
+    @MapsId("parentId") // ChildId.parentId 매핑
+    @ManyToOne
+    @JoinColumn(name = "PARENT_ID")
+    private Parent parent;
+    
+    private String name;
+}
+
 @SuppressWarnings("serial")
 @Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode
 @Embeddable
-public class ParentId implements Serializable{
-    
-    @Column(name = "PARENT_ID")
-    private String id;
-    
-    @Column(name = "PARENT_ID2")
-    private String id2;
-    
-}
-```
+public class ChildId implements Serializable{
 
-```java
-@Entity
+    private String parentId; // @MapsId("parentId") 로 매핑
+    
+    @Column(name="CHILD_ID")
+    private String id;
+}
+
 @Getter
 @Setter
 @NoArgsConstructor
-public class Parent {
-
+@Table(name = "GRANDCHILD")
+@Entity
+public class GrandChild {
+    
     @EmbeddedId
-    private ParentId id;
+    private GrandChildId id;
+
+    @MapsId("childId") // GrandChildId.childId 매핑
+    @ManyToOne
+    @JoinColumns({
+        @JoinColumn(name = "PARENT_ID", referencedColumnName = "PARENT_ID"),
+        @JoinColumn(name = "CHILD_ID", referencedColumnName = "CHILD_ID")
+    })
+    private Child child;
+    
     
     private String name;
     
+}
+
+@SuppressWarnings("serial")
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@EqualsAndHashCode
+public class GrandChildId implements Serializable{
+
+    private ChildId childId; // @MapsId("childId") 매핑
+    
+    @Column(name="GRANDCHILD_ID")
+    private String id;
 }
 ```
 
@@ -552,7 +635,7 @@ public class Parent {
 * 기본 생성자가 있어야 한다.
 * 식별자는 public 이어야 한다.
 
-##### 2.3.2.1 저장
+##### 2.2.2.2 저장
 
 ```java
 Parent parent = new Parent();
@@ -562,13 +645,13 @@ parent.setName("parentName");
 em.persist(parent);
 ```
 
-##### 2.3.2.2 조회
+##### 2.2.2.3 조회
 
 ```java
 ParentId parentId = new ParentId("myId1", "myId2");
 ```
 
-#### 2.3.3 equals(), hashCode()
+#### 2.2.3 equals(), hashCode()
 
 ```java
 ParentId id1 = new ParentId("myId1", "myId2");
@@ -582,4 +665,124 @@ id1.equals(id2) <-- 결과는 과연 참일까?
 * lombok에서 제공하는 @EqualsAndHashCode 사용시 간편하게 재정의 할 수 있다.
 
 > 복합키에는 @GenerateValue를 사용 할 수 없다.
+
+
+
+### 2.2 비식별 관계 ( Non-Identifying Relationship )
+
+- 부모 테이블의 기본 키를 받아서 자식 테이블의 외래 키로만 사용하는 관계.
+
+![](./img/비식별관계_ERD.png)
+
+- 필수적 비식별 관계 (Mandatory) : 외래 키에 NULL을 허용하지 않는다. 연관관계를 필수적으로 맺어야 한다.
+- 선택적 비식별 관계 (Optional) : 외래 키에 NULL을 허용한다. 연관관계를 맺을지 말지 선택할 수 있다.
+
+#### 2.2.1 비식별 관계 매핑
+
+```java
+@Getter
+@Setter
+@NoArgsConstructor
+@Entity
+@Table(name = "PARENT")
+public class Parent {
+
+    @Id @GeneratedValue
+    @Column(name = "PARENT_ID")
+    private Long id;
+    
+    private String name;
+}
+
+@Getter
+@Setter
+@NoArgsConstructor
+@Table(name = "CHILD")
+@Entity
+public class Child {
+    
+    @Id @GeneratedValue
+    @Column(name = "CHILD_ID")
+    private Long id;
+    
+    @ManyToOne
+    @JoinColumn(name = "PARENT_ID")
+    private Parent parent;
+    
+    private String name;
+}
+
+@Getter
+@Setter
+@NoArgsConstructor
+@Table(name = "GRANDCHILD")
+@Entity
+public class GrandChild {
+    
+    @Id @GeneratedValue
+    @Column(name = "GRANDCHILD_ID")
+    private Long id;
+
+    @ManyToOne
+    @JoinColumn(name = "CHILD_ID")
+    private Child child;
+    
+    
+    private String name;
+    
+}
+```
+
+* 복합키를 사용한 코드와 비교하면 매핑도 쉽고 코드도 단순하다.
+* 복합키가 존재하지 않으므로 복합 키 클래스를 만들지 않아도 된다.
+
+
+
+### 2.3 일대일 식별관계
+
+* 자식 테이블의 기본 키 값으로 부모 테이블의 기본 키 값만 사용한다.
+
+
+
+### 2.4 식별관계 VS 비식별관계
+
+#### 2.4.1 식별관계 단점
+
+* 기본 키를 자식 테이블로 전파하면서 자식 테이블의 기본 키 컬럼이 점점 늘어난다.
+* 컬럼이 점점 늘어나므로 결국 조인할 때 SQL이 복잡해진다.
+* 기본 키 인덱스가 불필요하게 커질 수 있다.
+* 2개 이상의 컬럼을 합해서 복합 기본 키를 만들어야 하는 경우가 많다.
+* 비지니스 요구사항 변화에 대응하기 어렵다.
+
+* JPA에서 식별관계를 사용시 복합키 클래스를 생성해야 한다.
+
+#### 2.4.2 식별관계 장점
+
+* 기본 키 인덱스를 활용하기 좋다.
+* 상위 테이블의 기본키 컬럼을 자식 테이블이 가지고 있어서 하위 테이블만으로 조회가 가능하다.
+
+#### 2.4.3 비식별관계 장점
+
+* 비식별관계는 자식테이블이 대리키를 사용한다.
+* 대리키는 비지니스와 연관이 없어서 변경사항 발생시에 유연하게 대처가 가능하다.
+* JPA는 @GenerateValue를 통하여 간편하게 대리 키를 생성할 수 있다.
+* 식별자 컬럼이 하나여서 쉽게 매핑이 가능하다.
+
+#### 2.4.4 결론
+
+* ORM 신규 프로젝트 진행시 될 수 있으면 비식별 관계를 사용하자. ( 클래스 구조가 단순해진다. )
+* 특정 상황에서는 식별관계를 적절하게 사용한다. 
+* 선택적 비식별 관계보다 필수적 비식별 관계를 사용한다.
+
+
+
+## 3. 조인테이블
+
+
+
+
+
+
+
+
 
