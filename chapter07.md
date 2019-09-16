@@ -774,15 +774,76 @@ public class GrandChild {
 * 특정 상황에서는 식별관계를 적절하게 사용한다. 
 * 선택적 비식별 관계보다 필수적 비식별 관계를 사용한다.
 
-
-
 ## 3. 조인테이블
 
+* 연관 관계를 관리하는 조인 테이블을 추가하고 여기서 두 테이블의 외래 키를 가지고 연관관계를 관리한다.
+* 테이블을 따로 생성해여 관리해야하는 단점이 있다.
+* @JoinColumn으로 컬럼을 매핑하고 @JoinTable로 테이블을 매핑한다.
+* 연결테이블, 링크 테이블로도 불린다.
 
+### 3.1 일대일 조인 테이블
 
+![일대일 조인 테이블 매핑](./img/일대일_조인테이블_매핑.png)
 
+```java
+@Getter
+@Setter
+@NoArgsConstructor
+@Entity
+@Table(name = "PARENT")
+public class Parent {
 
+    @Id @GeneratedValue
+    @Column(name = "PARENT_ID")
+    private Long id;
+    
+    private String name;
+    
+    @OneToOne
+    @JoinTable(name = "PARENT_CHILD",
+               joinColumns = @JoinColumn(name = "PARENT_ID"),
+               inverseJoinColumns = @JoinColumn(name = "CHILD_ID"))
+    private Child child;
+    
+}
 
+@Getter
+@Setter
+@NoArgsConstructor
+@Table(name = "CHILD")
+@Entity
+public class Child {
+    
+    @Id @GeneratedValue
+    @Column(name = "CHILD_ID")
+    private Long id;
+    
+    @OneToOne(mappedBy = "child")
+    private Parent parent;
+    
+    private String name;
+    
+    public void setParent(Parent parent) {
+        
+        if (this.parent != null) {
+            this.parent.setChild(null);
+        }
 
+        this.parent = parent;
+
+        if (parent != null) {
+            parent.setChild(this);
+        }
+    }
+}
+
+```
+
+* @JoinColumn 대신에 @JoinTable을 사용.
+  * name : 매핑할 조인 테이블 이름
+  * joinColumn : 현재 엔티티를 참조하는 외래 키
+  * inverseJoinColumn : 반대방향 엔티티를 참조하는 외래 키
+
+### 3.2 일대다 조인테이블
 
 
