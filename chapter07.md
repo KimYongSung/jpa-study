@@ -846,4 +846,162 @@ public class Child {
 
 ### 3.2 일대다 조인테이블
 
+* 다(N)와 관련된 컬럼에 유니크 제약조건을 걸어야 한다.
 
+![일대다 조인 테이블](./img/일대다_조인_테이블_매핑.png)
+
+```java
+
+@Getter
+@Setter
+@NoArgsConstructor
+@Entity
+@Table(name = "PARENT")
+public class Parent {
+
+    @Id @GeneratedValue
+    @Column(name = "PARENT_ID")
+    private Long id;
+    
+    private String name;
+    
+    @OneToMany
+    @JoinTable(name = "PARENT_CHILD",
+               joinColumns = @JoinColumn(name = "PARENT_ID"),
+               inverseJoinColumns = @JoinColumn(name = "CHILD_ID"))
+    private List<Child> childs = new ArrayList<>();
+    
+    public void setChild(Child child) { // 관계 매핑
+        this.childs.add(child);
+    }
+}
+
+@Getter
+@Setter
+@NoArgsConstructor
+@Table(name = "CHILD")
+@Entity
+public class Child {
+    
+    @Id @GeneratedValue
+    @Column(name = "CHILD_ID")
+    private Long id;
+ 
+    private String name;
+}
+```
+
+### 3.3 다대일 조인 테이블
+
+* 일대다에서 방향만 반대이므로 ERD 는 동일하다.
+
+```java
+@Getter
+@Setter
+@NoArgsConstructor
+@Entity
+@Table(name = "PARENT")
+public class Parent {
+
+    @Id @GeneratedValue
+    @Column(name = "PARENT_ID")
+    private Long id;
+    
+    private String name;
+    
+    @OneToMany(mappedBy = "parent") 
+    private List<Child> childs = new ArrayList<>();
+}
+
+@Getter
+@Setter
+@NoArgsConstructor
+@Table(name = "CHILD")
+@Entity
+public class Child {
+    
+    @Id @GeneratedValue
+    @Column(name = "CHILD_ID")
+    private Long id;
+ 
+    private String name;
+    
+    @ManyToOne(optional = false)
+    @JoinTable(name = "PARENT_CHILD",
+               joinColumns = @JoinColumn(name = "CHILD_ID"),
+               inverseJoinColumns = @JoinColumn(name = "PARENT_ID"))
+    private Parent parent;
+    
+    public void setParent(Parent parent) {
+        
+        if(parent != null) {
+            parent.getChilds().remove(this);
+        }
+        
+        this.parent = parent;
+        
+        if(parent != null) {
+            parent.getChilds().add(this);
+        }
+    }
+}
+```
+
+* optional 설정을 false로 지정시 해당 관계에 null이 지정가능 하다.
+* joinColumns 과 inverseJoinColumns 의 위치를 일대다의 반대로 지정.
+
+### 3.4 다대다 조인 테이블
+
+* 조인 테이블의 두 컬럼을 합해서 하나의 복합 유니크 제약조건을 걸어야 한다.
+
+![다대다 조인테이블 매핑](./img/다대다_조인테이블_매핑.png)
+
+```java
+@Getter
+@Setter
+@NoArgsConstructor
+@Entity
+@Table(name = "PARENT")
+@ToString(exclude = "childs")
+public class Parent {
+
+    @Id 
+    @GeneratedValue
+    @Column(name = "PARENT_ID")
+    private Long id;
+    
+    private String name;
+    
+    @ManyToMany
+    @JoinTable(name = "PARENT_CHILD"
+        , joinColumns = @JoinColumn(name="PARENT_ID")
+        , inverseJoinColumns = @JoinColumn(name = "CHILD_ID")
+    )
+    private List<Child> childs = new ArrayList<>();
+    
+    public void setChild(Child child) {
+        childs.add(child);
+        child.getParents().add(this);
+    }
+}
+
+@Getter
+@Setter
+@NoArgsConstructor
+@Table(name = "CHILD")
+@Entity
+@ToString(exclude = "parents")
+public class Child {
+    
+    @Id 
+    @GeneratedValue
+    @Column(name = "CHILD_ID")
+    private Long id;
+ 
+    private String name;
+    
+    @ManyToMany(mappedBy = "childs")
+    private List<Parent> parents = new ArrayList<>();
+    
+}
+```
