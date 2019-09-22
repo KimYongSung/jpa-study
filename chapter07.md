@@ -1005,3 +1005,28 @@ public class Child {
     
 }
 ```
+### 3.5 엔티티 하나에 여러 테이블 매핑
+
+![엔티티 하나에 여러 테이블 매핑](./img/엔티티에_여러테이블매핑.png)
+
+* 하나의 엔티티에 @SecondaryTable을 사용하여 여러 테이블을 매핑 가능.
+* @SecondaryTable 사용시 항상 두 테이블을 조회하므로 가능하다면 1:1로 매핑하는 것을 권장.
+
+```java
+@Entity
+@Table(name="BOARD")
+@SecondaryTable(name=" BOARD_DETAIL", pkJoinColumns = @PrimaryKeyJoinColumn(name = "BOARD_DETAIL_ID"))
+@Getter
+public class Board {
+
+    @Id
+    @GeneratedValue
+    @Column(name = "BOARD_ID")
+    private Long id;
+    
+    private String title;
+    
+    @Column(table = "BOARD_DETAIL")
+    private String content;
+}
+```
