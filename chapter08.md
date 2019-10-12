@@ -1,4 +1,4 @@
-# chapter08
+# chapter08 : 프록시와 연관관계 관리
 
   
 

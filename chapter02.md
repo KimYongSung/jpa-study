@@ -1,4 +1,4 @@
-# Chapte02
+# Chapte02 : JPA 시작
 
 ## 1. JPA 객체 매핑 방법
 
