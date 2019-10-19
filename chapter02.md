@@ -1,4 +1,4 @@
-# Chapte02 : JPA 시작
+# chapter02
 
 ## 1. JPA 객체 매핑 방법
 
@@ -19,17 +19,14 @@
 ## 2. persistence.xml 설정
 
 * JPA는 persistence.xml 파일을 통하여 설정가능.
-
 * 클래스패스 META-INF/persistence.xml에 존재할 경우 별다른 설정 없이 인식 가능.
 
   * 영속성 유닛\(persistence unit\) 설정부터 시작.
   * xml 상에 name attribute에는 고유의 이름을 부여해야함.
 
-  ```xml
-<persistence-unit name="jpa명">
+  ```markup
+  <persistence-unit name="jpa명">
   ```
-
-
 
 ### 2.1 JPA 표준 속성
 
@@ -38,13 +35,9 @@
 * javax.persistence.jdbc.password : 데이터베이스 접속 비밀번호
 * javax.persistence.jdbc.url : 데이터베이스 접속 URL
 
-
-
 ### 2.3 하이버네이트 속성
 
 * hibernate.dialect : 데이터베이스 방언 \( Dialect \) 설정
-
-
 
 ## 3. 데이터베이스 방언
 
@@ -52,14 +45,10 @@
 * Dialect 라는 추상 클래스를 통하여 벤더별로 구현된 방언이 존재함.
 * 데이터베이스를 손쉽게 교체할 수 있는 핵심.
 * 하이버네이트 4.3 final 기준 지원하는 방언
-
   * [http://docs.jboss.org/hibernate/orm/4.3/manual/en-US/html\_single/\#configuration-optional-dialects](http://docs.jboss.org/hibernate/orm/4.3/manual/en-US/html_single/#configuration-optional-dialects)
-
 * 대표적인 데이터베이스 별로 상이한 기능
-
-  + 데이터 타입
-    + 가변 문자 타입으로 MySql은 VARCHAR, 오라클은 VARCHAR2를 사용한다.
-
+  * 데이터 타입
+    * 가변 문자 타입으로 MySql은 VARCHAR, 오라클은 VARCHAR2를 사용한다.
   * 다른 함수명
     * 문자열을 자르는 함수로 SQL 표준은 SUBSTRING\(\)을 사용하지만 오라클은 SUBSTR\(\)을 사용한다.
   * 페이징 처리

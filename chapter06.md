@@ -1,4 +1,4 @@
-# Chapter06 : 다양한 연관관계 매핑
+# chapter06
 
 ## 연관관계 종류
 
@@ -9,11 +9,9 @@
 
 #### 1.1 다대일 단방향
 
-![다대일단방향](./img/단방향_다대일_class_diagram.png)
+![&#xB2E4;&#xB300;&#xC77C;&#xB2E8;&#xBC29;&#xD5A5;](.gitbook/assets/_-_class_diagram%20%281%29.png)
 
-![erd](./img/단방향_다대일_erd.png)
-
-
+![erd](.gitbook/assets/_-_erd.png)
 
 * 단방향 다대일 객체 매핑
 
@@ -25,7 +23,7 @@
 @Setter
 @ToString(exclude = "orders")
 public class Member {
-    
+
     @Id
     @Column(length = 20, unique = true)
     @GenericGenerator(name = "seqGenerator"
@@ -46,13 +44,13 @@ public class Member {
 
     @Column(nullable = false, length = 20)
     private String name;
-    
+
     @Column(nullable = false)
     private Integer age;
-    
+
     @Enumerated(EnumType.STRING)
     private MemberStatus status;
-    
+
     ...
 }
 
@@ -79,30 +77,28 @@ public class Orders {
     private Member member;
 
     public void setMember(Member member) {
-        
+
         if(this.member != null) {
             this.member.getOrders().remove(this);
         }
-        
+
         this.member = member;
-        
+
         if(member != null) {
              member.getOrders().add(this);
         }
     }
-    
+
     ...
 }
 ```
-
-
 
 #### 1.2 다대일 양방향
 
 * 양방향은 외래 키가 있는 쪽인 연관관계의 주인이다.
 * 양방향 연관관계는 항상 서로를 참조해야 한다.
 
-![클래스 다이어그램](./img/양방향_다대일_class_diagram.png)
+![&#xD074;&#xB798;&#xC2A4; &#xB2E4;&#xC774;&#xC5B4;&#xADF8;&#xB7A8;](.gitbook/assets/_-_class_diagram%20%283%29.png)
 
 ```java
 // Member 엔티티 클래스
@@ -112,7 +108,7 @@ public class Orders {
 @Setter
 @ToString(exclude = "orders")
 public class Member {
-    
+
     @Id
     @Column(length = 20, unique = true)
     @GenericGenerator(name = "seqGenerator"
@@ -133,17 +129,17 @@ public class Member {
 
     @Column(nullable = false, length = 20)
     private String name;
-    
+
     @Column(nullable = false)
     private Integer age;
-    
+
     @Enumerated(EnumType.STRING)
     private MemberStatus status;
-    
+
     // 1:N 매핑
     @OneToMany(mappedBy = "member", fetch = FetchType.LAZY)
     private List<Orders> orders = new ArrayList<>();
-    
+
     ...
 }
 
@@ -170,38 +166,34 @@ public class Orders {
     private Member member;
 
     public void setMember(Member member) {
-        
+
         if(this.member != null) {
             this.member.getOrders().remove(this);
         }
-        
+
         this.member = member;
-        
+
         if(member != null) {
              // member에 객체 참조
              member.getOrders().add(this);
         }
     }
-    
+
     ...
 }
 ```
-
-
 
 ### 2. 일대다
 
 * 일대다 관계는 다대일 관계의 반대 방향이다.
 * 일대다 관계는 자바 Collection, List, Set, Meap 중에 하나를 사용해야함.
 
-
-
 #### 2.1 일대다 단방향
 
 * 보통과 달리 `반대쪽 테이블에 있는 외래 키를 관리`한다.
 * 일대다 단방향의 경우 매핑시에 @JoinColumn을 명시해야 한다. 명시 하지 않을 경우 연관관계를 관리하는 조인 테이블 전략을 기본으로 사용한다.
 
-![class diagram](./img/단방향_일대다_class_diagram.png)
+![class diagram](.gitbook/assets/_-_class_diagram.png)
 
 ```java
 // Member 엔티티 클래스
@@ -211,7 +203,7 @@ public class Orders {
 @Setter
 @ToString(exclude = "orders")
 public class Member {
-    
+
     @Id
     @Column(length = 20, unique = true)
     @GenericGenerator(name = "seqGenerator"
@@ -228,7 +220,7 @@ public class Member {
     @OneToMany
     @JoinColumn(name = "MEMBER_NO") // Orders의 MEMBER_NO 컬럼으로 JOIN
     private List<Orders> orders = new ArrayList<>();
-    
+
     ...
 
 }
@@ -249,14 +241,14 @@ public class Orders {
     @Column(length = 20, unique = true)
     @GeneratedValue(generator = "ORDER_NO_SEQ_GENERATOR", strategy = GenerationType.SEQUENCE)
     private Long orderNo;
-    
+
     @OneToOne
     @JoinColumn(name="DELIVERY_NO")
     private Delivery delivery;
- 
+
     public void setDelivery(Delivery delivery) {
         this.delivery = delivery;
-        
+
         if(delivery != null) {
             delivery.setOrder(this);
         }
@@ -264,17 +256,14 @@ public class Orders {
 }
 ```
 
-
-
-##### 2.1.1 일대다 단방향 매핑의 단점
+**2.1.1 일대다 단방향 매핑의 단점**
 
 * 매핑한 객체과 관리하는 외래 키가 다른 테이블에 존재.
-
 * 본인 테이블에 외래 키가 있으면 연관관계 처리시 INSERT로 처리 가능하지만, 다른 테이블에 외래 키가 있을 경우 UPDATE 를 추가로 실행해야함.
 
 ```java
  public void logic(EntityManager em) {
-        
+
      Member member = makeMember(em);
 
      Orders order = 주문요청(em, member, "우리집");
@@ -342,15 +331,13 @@ Hibernate:
         order_no=?
 ```
 
-
-
 #### 2.2 일대다 양방향
 
 * 양방향 매핑에서는 @OneToMany는 연관관계 주인이 될 수 없다.
 * 관계형 데이터 베이스 특성상 항상 다 쪽에 외래키가 존재하고, 해당 이유로 @ManyToOne에는 mappedBy 속성이 없다.
 * 일대다 양방향 매핑은 `읽기 전용으로 다대일 단방향 매핑`을 추가해야한다.
 
-![양방향 일대다 class diagram](./img/양방향_일대다_class_diagram.png)
+![&#xC591;&#xBC29;&#xD5A5; &#xC77C;&#xB300;&#xB2E4; class diagram](.gitbook/assets/_-_class_diagram%20%282%29.png)
 
 ```java
 // Member 엔티티 클래스
@@ -360,7 +347,7 @@ Hibernate:
 @Setter
 @ToString(exclude = "orders")
 public class Member {
-    
+
     @Id
     @Column(length = 20, unique = true)
     @GenericGenerator(name = "seqGenerator"
@@ -372,7 +359,7 @@ public class Member {
                     )
     @GeneratedValue(generator = "seqGenerator")
     private String memberNo;
-    
+
     // 1:N 단방향 매핑.
     @OneToMany
     @JoinColumn(name = "MEMBER_NO") // Orders의 MEMBER_NO 컬럼으로 JOIN
@@ -397,22 +384,20 @@ public class Orders {
     @Column(length = 20, unique = true)
     @GeneratedValue(generator = "ORDER_NO_SEQ_GENERATOR", strategy = GenerationType.SEQUENCE)
     private Long orderNo;
-    
+
     // 읽기 전용으로 양방향 매핑
     @ManyToOne
     @JoinColumn(name="MEMBER_NO", insertable = false, updatable = false) 
     private Member member;
-    
+
    ...
 }
 ```
 
-##### 2.2.1 일대다 양방향 매핑의 단점
+**2.2.1 일대다 양방향 매핑의 단점**
 
 * 일대다 단방향 매핑의 단점을 그대로 가진다.
 * 될 수 있으면 **다대일 양방향 매핑을 사용**해야한다.
-
-
 
 ### 3. 일대일
 
@@ -424,18 +409,16 @@ public class Orders {
   * 대상 테이블에 외래 키
     * 테이블 관계를 일대일에서 일대다로 변경할 때 테이블 구조를 그대로 유지 가능하다.
 
-
-
 #### 3.1 주 테이블에 외래 키
 
 * 객체지향 개발자들은 주 테이블에 외래 키가 있는 것을 선호한다.
 * JPA에서 주 테이블에 외래 키가 있으면 좀 더 편리하게 매핑할 수 있다.
 
-![일대일 erd](./img/일대일_erd.png)
+![&#xC77C;&#xB300;&#xC77C; erd](.gitbook/assets/_erd%20%281%29.png)
 
-##### 3.1.1 단방향
+**3.1.1 단방향**
 
-![주 테이블 외래키 단방향 class diagram](./img/주_테이블_외래키_일대일_단방향_class_diagram.png)
+![&#xC8FC; &#xD14C;&#xC774;&#xBE14; &#xC678;&#xB798;&#xD0A4; &#xB2E8;&#xBC29;&#xD5A5; class diagram](.gitbook/assets/_-_-_-_-_class_diagram%20%281%29.png)
 
 * 일대일 관계이므로 @OneToOne을 사용하여 매핑한다.
 
@@ -499,11 +482,9 @@ public class Delivery {
 }
 ```
 
+**3.1.2 양방향**
 
-
-##### 3.1.2 양방향
-
-![주 테이블 외래키 일대일 양방향 class diagram](./img/주_테이블_외래키_일대일_양방향_class_diagram.png)
+![&#xC8FC; &#xD14C;&#xC774;&#xBE14; &#xC678;&#xB798;&#xD0A4; &#xC77C;&#xB300;&#xC77C; &#xC591;&#xBC29;&#xD5A5; class diagram](.gitbook/assets/_-_-_-_-_class_diagram.png)
 
 * Orders에 Delivery 외래키가 존재하므로 Orders.delivery가 연관관계 주인이다.
 * Delivery.orders에 mappedBy를 사용하여 주인이 아니라고 설정한다.
@@ -552,7 +533,7 @@ public class Orders {
 
     // Delivery 연관관계 매핑 처리
     public void setDelivery(Delivery delivery) {
-        
+
         this.delivery = delivery;
 
         if (delivery != null) {
@@ -579,7 +560,7 @@ public class Delivery {
 
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
-    
+
     // 1:1 단방향 매핑
     // ERD상 Orders에 Delivery 외래 키가 존재하므로 mappedBy 속성을 지정
     @OneToOne(mappedBy = "delivery")
@@ -588,22 +569,18 @@ public class Delivery {
 }
 ```
 
-
-
 #### 3.2 대상 테이블에 외래 키
 
-##### 3.2.1 단방향
+**3.2.1 단방향**
 
-![단방향 class diagram](./img/단방향_대상_테이블에_외래키.png)
+![&#xB2E8;&#xBC29;&#xD5A5; class diagram](.gitbook/assets/_-_-_%20%281%29.png)
 
 * 대상 테이블에 외래 키가 있는 단방향 관계는 JPA에서 지원하지 않으며, 매핑할 수 있는 방법도 없다.
 * 위의 케이스에서 단방향 관계를 Delivery 에서 Orders 방향으로 수정하거나 양방향 관계로 만들고 Delivery를 연관관계의 주인으로 설정해야한다. 
 
+**3.2.2 양방향**
 
-
-##### 3.2.2 양방향
-
-![양방향](./img/양방향_대상_테이블에_외래키.png)
+![&#xC591;&#xBC29;&#xD5A5;](.gitbook/assets/_-_-_%20%282%29.png)
 
 ```java
 // Orders 엔티티 클래스
@@ -653,7 +630,7 @@ public class Delivery {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private String deliveryNo;
-    
+
     // 1:1 매핑
     // ORDER_NO를 JoinColumn 지정하여 매핑함.
     @OneToOne
@@ -666,11 +643,11 @@ public class Delivery {
 
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
-    
+
     public void setOrder(Orders order) {
-        
+
         this.order = order;
-      
+
         // Orders의 Delivery 매핑 처리
         if(order != null) {
             order.setDelivery(this);
@@ -679,21 +656,16 @@ public class Delivery {
 }
 ```
 
-
-
 ### 4. 다대다
 
 * 관계형 데이터베이스에서 정규화된 테이블 2개로 다대다 관계를 표현할 수 없다.
-
 * 보통 다대다 관계를 일대다, 다대일 관계로 풀어내는 연결테이블을 사용한다.
 
-![불가능한 관계](./img/다대다_불가능.png)
+![&#xBD88;&#xAC00;&#xB2A5;&#xD55C; &#xAD00;&#xACC4;](.gitbook/assets/_%20%281%29.png)
 
-![연결테이블사용](./img/다대다_연결_테이블.png)
+![&#xC5F0;&#xACB0;&#xD14C;&#xC774;&#xBE14;&#xC0AC;&#xC6A9;](.gitbook/assets/_-_%20%282%29.png)
 
 * 객체는 테이블과 다르게 2개로 다대다 관계를 만들 수 있다.
-
-
 
 #### 4.1 다대다 단방향
 
@@ -737,9 +709,9 @@ public class Category {
     @GeneratedValue
     @Column(name = "CATEGORY_ID")
     private Long id;
-    
+
     private String name;
-    
+
     @ManyToMany
     @JoinTable(name = "GOODS_CATAGORY"
               , joinColumns = @JoinColumn(name = "GOODS_CD")
@@ -752,17 +724,13 @@ public class Category {
 
 * @ManyToMany과 @JoinTable을 통하여 매핑 처리.
 
-  
-
->  @JoinTable 속성
+> @JoinTable 속성
 >
 > * name : 연결테이블을 지정한다.
 > * joinColumns : 매핑할 조인 컬럼 정보를 지정한다.
 > * inverseJoinColumns : 반대 방향인 상품과 매핑할 조인 정보를 지정한다.
 
-
-
-##### 4.1.1 다대다 단방향 저장
+**4.1.1 다대다 단방향 저장**
 
 ```java
 public void saveManyToMany(EntityManager em) {
@@ -829,11 +797,11 @@ Hibernate:
             (?, ?)
 ```
 
-##### 4.1.2 다대다 단방향 조회
+**4.1.2 다대다 단방향 조회**
 
 ```java
 public void findManyToMany(EntityManager em) {
-        
+
     Category category = em.find(Category.class, 1l);
 
     // GOODS_CATAGORY 그래프 탐색
@@ -858,7 +826,7 @@ Hibernate:
         category category0_ 
     where
         category0_.category_id=?
-        
+
 // 그래프 탐색을 통하여 조회한 쿼리        
 Hibernate: 
     select
@@ -906,7 +874,7 @@ public class Goods {
 
     @Column(nullable = false)
     private Long goodsPrice;
-    
+
     // N:N 매핑 추가
     @ManyToMany(mappedBy = "goods")
     private List<Category> categorys = new ArrayList<>();
@@ -925,9 +893,9 @@ public class Category {
     @GeneratedValue
     @Column(name = "CATEGORY_ID")
     private Long id;
-    
+
     private String name;
-    
+
     @ManyToMany
     @JoinTable(name = "GOODS_CATAGORY"
               , joinColumns = @JoinColumn(name = "GOODS_CD")
@@ -937,7 +905,7 @@ public class Category {
 
     // 양방향 매핑을 위한 편의 메소드 생성
     public void addGoods(Goods goods) {
-       
+
         this.goods.add(goods);
         goods.getCategorys().add(this);
     }
@@ -949,7 +917,7 @@ public class Category {
 * 조인 테이블에 `컬럼을 추가할 수 없어서` 실무에서 사용하기에는 한계가 있다.
 * 다대다 매핑시 조인 테이블대신 `연결테이블을 추가하여 매핑`해야 한다.
 
-![연결엔티티사용](./img/다대다_연결엔티티.png)
+![&#xC5F0;&#xACB0;&#xC5D4;&#xD2F0;&#xD2F0;&#xC0AC;&#xC6A9;](.gitbook/assets/_.png)
 
 ```java
 // goods 엔티티 클래스
@@ -976,11 +944,11 @@ public class Goods {
 
     @Column(nullable = false)
     private Long price;
-    
+
     // 1:N 매핑
     @OneToMany(mappedBy = "goods", fetch = FetchType.LAZY)
     private List<GoodsCategory> goodsCategorys = new ArrayList<>();
- 
+
 }
 
 // GoodsCategory 엔티티 클래스
@@ -990,45 +958,45 @@ public class Goods {
 @ToString
 @NoArgsConstructor
 public class GoodsCategory {
-    
+
     @Id 
     @GeneratedValue
     @Column(name = "GOODS_CATEGORY_ID")
     private Long id;
-    
+
     // N:1 매핑
     @ManyToOne
     @JoinColumn(name = "GOODS_CD")
     private Goods goods;
-    
+
     // N:1 매핑
     @ManyToOne
     @JoinColumn(name = "CATEGORY_ID")
     private Category category;
-    
+
     // Goods 연관관계 매핑 메소드
     public void setGoods(Goods goods) {
-        
+
         if(this.goods != null) {
             this.goods.getGoodsCategorys().remove(this);
         }
-        
+
         this.goods = goods;
-        
+
         if(goods != null) {
             goods.getGoodsCategorys().add(this);
         }
     }
-    
+
     // Category 연관관계 매핑 메소드
     public void setCategory(Category category) {
-        
+
         if(this.category != null) {
             this.category.getGoodsCategorys().remove(this);
         }
-        
+
         this.category = category;
-        
+
         if(category != null) {
             category.getGoodsCategorys().add(this);
         }
@@ -1048,12 +1016,12 @@ public class Category {
     @GeneratedValue
     @Column(name = "CATEGORY_ID")
     private Long id;
-    
+
     private String name;
-    
+
     @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
     private List<GoodsCategory> goodsCategorys = new ArrayList<>();
-    
+
 }
 ```
 
